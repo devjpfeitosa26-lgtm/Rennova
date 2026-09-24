@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { applyXp, updateStreak, todayISO } from "@/lib/gamification";
+import { awardLevelAchievements } from "@/lib/achievements";
 
 export async function POST(request: Request) {
   const supabase = createClient();
@@ -83,9 +84,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
   }
 
+  const newAchievements = await awardLevelAchievements(
+    supabase,
+    user.id,
+    profile.level,
+    xpResult.level,
+    xpResult.leveledUp
+  );
+
   return NextResponse.json({
     profile: updated,
     xpEarned: mission.base_xp,
     leveledUp: xpResult.leveledUp,
+    newAchievements,
   });
 }

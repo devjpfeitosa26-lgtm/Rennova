@@ -15,9 +15,11 @@ dados) + **Tailwind CSS**.
    testar rápido sem confirmar e-mail, vá em **Authentication → Settings**
    e desative "Confirm email" (em produção, recomendo deixar ativado).
 3. Vá em **SQL Editor**, abra uma nova query, cole o conteúdo do arquivo
-   [`supabase/schema.sql`](./supabase/schema.sql) e rode. Isso cria as
-   tabelas, as políticas de segurança (RLS) e o catálogo das 4 missões.
-4. Em **Project Settings → API**, copie a **Project URL** e a chave
+   [`supabase/schema.sql`](./supabase/schema.sql) e rode.
+4. Rode também [`supabase/migration_v2.sql`](./supabase/migration_v2.sql) em
+   outra query — ele adiciona missões personalizadas, os devocionais e os
+   troféus. É seguro rodar mesmo em um banco já em uso (não apaga nada).
+5. Em **Project Settings → API**, copie a **Project URL** e a chave
    **anon public**.
 
 ## 2. Rodar localmente
@@ -55,6 +57,19 @@ Abra http://localhost:3000.
   **Vícios**. Ao marcar "Recaí" em qualquer um deles, o progresso inteiro
   (nível, XP e sequência atual) é zerado — o histórico da recaída fica
   registrado na tabela `relapses` para estatísticas futuras.
+- **Missões personalizadas**: além das 4 fixas, cada usuário pode criar até
+  6 missões próprias (ex.: "beber água", "dormir cedo"), cada uma valendo
+  15 XP. Ficam salvas na mesma tabela `mission_types`, só que com o
+  `user_id` preenchido.
+- **Devocional**: a missão "Devocional" abre uma página de leitura com um
+  texto de C. H. Spurgeon (clássico protestante reformado, obra em domínio
+  público desde 1892; os textos foram traduzidos livremente para este
+  projeto). O ciclo tem 8 dias e se repete — dá para adicionar mais linhas
+  na tabela `devotionals` a qualquer momento, seguindo o mesmo formato.
+- **Troféus**: concedidos automaticamente ao subir de nível pela primeira
+  vez e ao alcançar os níveis 5, 10, 15, 20, 25 e 30. O troféu "Mês limpo"
+  (nenhuma recaída no mês) é conferido toda vez que o usuário abre a aba
+  Troféus, olhando o mês calendário anterior.
 
 ## Próximos passos sugeridos
 

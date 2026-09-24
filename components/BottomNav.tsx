@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ListChecks, ShieldAlert } from "lucide-react";
+import { ListChecks, ShieldAlert, Trophy } from "lucide-react";
 
 const items = [
   { href: "/dashboard", label: "Missões", icon: ListChecks },
   { href: "/dashboard/vicios", label: "Vícios", icon: ShieldAlert },
+  { href: "/dashboard/trofeus", label: "Troféus", icon: Trophy },
 ];
 
 export default function BottomNav() {

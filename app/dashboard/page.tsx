@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { todayISO } from "@/lib/gamification";
 import MissionList from "@/components/MissionList";
+import CustomMissionForm from "@/components/CustomMissionForm";
 
 export default async function DashboardPage() {
   const supabase = createClient();
@@ -12,7 +13,11 @@ export default async function DashboardPage() {
   const today = todayISO();
 
   const [{ data: missions }, { data: completions }, { data: problems }] = await Promise.all([
-    supabase.from("mission_types").select("id, label, base_xp").order("id"),
+    supabase
+      .from("mission_types")
+      .select("id, label, base_xp, user_id")
+      .or(`user_id.is.null,user_id.eq.${user!.id}`)
+      .order("created_at"),
     supabase
       .from("daily_completions")
       .select("mission_id")
@@ -22,7 +27,14 @@ export default async function DashboardPage() {
   ]);
 
   const order = ["treinar", "devocional", "leitura", "estudar"];
-  const sorted = [...(missions ?? [])].sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id));
+  const sorted = [...(missions ?? [])].sort((a, b) => {
+    const ai = order.indexOf(a.id);
+    const bi = order.indexOf(b.id);
+    if (ai !== -1 && bi !== -1) return ai - bi;
+    if (ai !== -1) return -1;
+    if (bi !== -1) return 1;
+    return 0;
+  });
 
   return (
     <div className="pt-6">
@@ -39,9 +51,11 @@ export default async function DashboardPage() {
       <h2 className="mb-4 font-display text-xl italic text-text">Trilha de hoje</h2>
 
       <MissionList
-        missions={sorted}
+        missions={sorted.map((m) => ({ ...m, custom: !!m.user_id }))}
         doneIds={(completions ?? []).map((c) => c.mission_id)}
       />
+
+      <CustomMissionForm />
     </div>
   );
 }

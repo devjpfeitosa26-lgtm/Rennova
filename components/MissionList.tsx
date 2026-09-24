@@ -2,7 +2,18 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Dumbbell, Sunrise, BookOpen, GraduationCap, Check, PartyPopper } from "lucide-react";
+import Link from "next/link";
+import {
+  Dumbbell,
+  Sunrise,
+  BookOpen,
+  GraduationCap,
+  Sparkle,
+  Check,
+  PartyPopper,
+  Trophy,
+  ChevronRight,
+} from "lucide-react";
 
 const ICONS: Record<string, typeof Dumbbell> = {
   treinar: Dumbbell,
@@ -11,7 +22,7 @@ const ICONS: Record<string, typeof Dumbbell> = {
   estudar: GraduationCap,
 };
 
-type Mission = { id: string; label: string; base_xp: number };
+type Mission = { id: string; label: string; base_xp: number; custom?: boolean };
 
 export default function MissionList({
   missions,
@@ -24,7 +35,7 @@ export default function MissionList({
   const [done, setDone] = useState(new Set(doneIds));
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [levelUp, setLevelUp] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
   async function complete(missionId: string) {
@@ -47,10 +58,15 @@ export default function MissionList({
     }
 
     setDone((prev) => new Set(prev).add(missionId));
-    if (data.leveledUp) {
-      setLevelUp(true);
-      setTimeout(() => setLevelUp(false), 2600);
+
+    if (data.newAchievements?.length) {
+      setToast(`Troféu desbloqueado: ${data.newAchievements[0]}`);
+      setTimeout(() => setToast(null), 3000);
+    } else if (data.leveledUp) {
+      setToast("Você subiu de nível!");
+      setTimeout(() => setToast(null), 2600);
     }
+
     startTransition(() => router.refresh());
   }
 
@@ -58,18 +74,48 @@ export default function MissionList({
 
   return (
     <div className="relative">
-      {levelUp && (
+      {toast && (
         <div className="animate-pop-in absolute -top-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-md border border-amber/40 bg-surface px-4 py-2 text-sm text-amber shadow-lg">
-          <PartyPopper size={16} />
-          Você subiu de nível!
+          {toast.startsWith("Troféu") ? <Trophy size={16} /> : <PartyPopper size={16} />}
+          {toast}
         </div>
       )}
 
       <div className="space-y-2.5">
         {missions.map((mission) => {
-          const Icon = ICONS[mission.id] ?? Dumbbell;
           const isDone = done.has(mission.id);
           const isPending = pendingId === mission.id;
+
+          if (mission.id === "devocional") {
+            return (
+              <Link
+                key={mission.id}
+                href="/dashboard/devocional"
+                className={`flex w-full items-center gap-3.5 rounded-md border px-4 py-4 text-left transition active:scale-[0.99] ${
+                  isDone ? "border-moss/30 bg-moss/10" : "border-line bg-surface"
+                }`}
+              >
+                <span
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${
+                    isDone ? "bg-moss/20 text-moss-soft" : "bg-surface2 text-muted"
+                  }`}
+                >
+                  {isDone ? <Check size={18} /> : <Sunrise size={18} />}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className={`block ${isDone ? "text-moss-soft line-through" : "text-text"}`}>
+                    {mission.label}
+                  </span>
+                  <span className="text-xs text-muted">
+                    {isDone ? "Concluído hoje" : `Ler e concluir · +${mission.base_xp} XP`}
+                  </span>
+                </span>
+                {!isDone && <ChevronRight size={18} className="text-muted" />}
+              </Link>
+            );
+          }
+
+          const Icon = ICONS[mission.id] ?? Sparkle;
 
           return (
             <button
