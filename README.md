@@ -19,7 +19,10 @@ dados) + **Tailwind CSS**.
 4. Rode também [`supabase/migration_v2.sql`](./supabase/migration_v2.sql) em
    outra query — ele adiciona missões personalizadas, os devocionais e os
    troféus. É seguro rodar mesmo em um banco já em uso (não apaga nada).
-5. Em **Project Settings → API**, copie a **Project URL** e a chave
+5. Rode [`supabase/migration_v3.sql`](./supabase/migration_v3.sql) também —
+   ele substitui o ciclo de 8 devocionais por um ciclo completo de 31 dias
+   (janeiro inteiro). Pode rodar de novo no futuro sem problema.
+6. Em **Project Settings → API**, copie a **Project URL** e a chave
    **anon public**.
 
 ## 2. Rodar localmente
@@ -64,8 +67,9 @@ Abra http://localhost:3000.
 - **Devocional**: a missão "Devocional" abre uma página de leitura com um
   texto de C. H. Spurgeon (clássico protestante reformado, obra em domínio
   público desde 1892; os textos foram traduzidos livremente para este
-  projeto). O ciclo tem 8 dias e se repete — dá para adicionar mais linhas
-  na tabela `devotionals` a qualquer momento, seguindo o mesmo formato.
+  projeto). O ciclo tem 31 dias (janeiro inteiro) e se repete — dá para
+  adicionar mais meses depois na tabela `devotionals`, seguindo o mesmo
+  formato do `migration_v3.sql`.
 - **Troféus**: concedidos automaticamente ao subir de nível pela primeira
   vez e ao alcançar os níveis 5, 10, 15, 20, 25 e 30. O troféu "Mês limpo"
   (nenhuma recaída no mês) é conferido toda vez que o usuário abre a aba
